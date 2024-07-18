@@ -19,8 +19,10 @@ public class SourceGenerator : IIncrementalGenerator
     );
 
     record SImplInterfInfo(
+        EquatableArray<string> Usings,
         Accessibility DeclaredAccessibility,
         string Fqn,
+        string Namespace,
         bool IsGlobalNamespace,
         EquatableArray<string> MembDeclrStrs
     );
@@ -53,18 +55,21 @@ public class SourceGenerator : IIncrementalGenerator
 
                     return new SInfo(
                         Fqn: sSbl.GetFullyQualifiedName(),
-                        Namespace: sSbl.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                        Namespace: sSbl.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
                         IsGlobalNamespace: sSbl.ContainingNamespace.IsGlobalNamespace,
                         DeclrStr: sDeclr.ToString(),
                         ImplCasts: new(implCasts),
-                        new EquatableArray<SImplInterfInfo>(sSbl.Interfaces.Select(i =>
+                        Interfaces: new EquatableArray<SImplInterfInfo>(sSbl.Interfaces.Select(i =>
                         {
                             ct.ThrowIfCancellationRequested();
+
                             return new SImplInterfInfo(
-                                i.DeclaredAccessibility,
-                                i.GetFullyQualifiedName(),
-                                i.ContainingNamespace.IsGlobalNamespace,
-                                new(i.GetMembers().Where(m => !m.IsStatic).Select(m =>
+                                Usings: new(i.DeclaringSyntaxReferences.SelectMany(d => d.GetSyntax(ct).SyntaxTree.GetCompilationUnitRoot(ct).Usings.Select(u => u.ToString())).Distinct().OrderBy(x => x).ToArray()),
+                                DeclaredAccessibility: i.DeclaredAccessibility,
+                                Fqn: i.GetFullyQualifiedName(),
+                                Namespace: i.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                                IsGlobalNamespace: i.ContainingNamespace.IsGlobalNamespace,
+                                MembDeclrStrs: new(i.GetMembers().Where(m => !m.IsStatic).Select(m =>
                                 {
                                     ct.ThrowIfCancellationRequested();
                                     return m.DeclaringSyntaxReferences.First().GetSyntax(ct).ToString();
@@ -413,10 +418,21 @@ public class SourceGenerator : IIncrementalGenerator
                     _ => throw new NotSupportedException(),
                 };
 
+                var usings = new List<string>
+                {
+                    "System",
+                    "IotaLambda.Intersection.Internal"
+                };
+
+                foreach (var i in sInfo.Interfaces)
+                {
+                    if (!i.IsGlobalNamespace)
+                        usings.Add(i.Namespace);
+                    usings.AddRange(i.Usings);
+                }
+
                 cuStx = cuStx
-                    .AddUsings(
-                        SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System")),
-                        SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("IotaLambda.Intersection.Internal")))
+                    .AddUsings(usings.Distinct().Select(u => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(u))).ToArray())
                     .NormalizeWhitespace();
 
                 spCtx.AddSource($"{sInfo.Fqn}.g.cs", SourceText.From(cuStx.ToFullString(), Encoding.UTF8));
