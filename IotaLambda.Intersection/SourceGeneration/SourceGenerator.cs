@@ -64,7 +64,7 @@ public class SourceGenerator : IIncrementalGenerator
                             ct.ThrowIfCancellationRequested();
 
                             return new SImplInterfInfo(
-                                Usings: new(i.DeclaringSyntaxReferences.SelectMany(d => d.GetSyntax(ct).SyntaxTree.GetCompilationUnitRoot(ct).Usings.Select(u => u.ToString())).Distinct().OrderBy(x => x).ToArray()),
+                                Usings: new(i.DeclaringSyntaxReferences.SelectMany(d => d.GetSyntax(ct).SyntaxTree.GetCompilationUnitRoot(ct).Usings.Select(u => u.NamespaceOrType.ToString())).Distinct().OrderBy(x => x).ToArray()),
                                 DeclaredAccessibility: i.DeclaredAccessibility,
                                 Fqn: i.GetFullyQualifiedName(),
                                 Namespace: i.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
