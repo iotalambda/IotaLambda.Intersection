@@ -1,0 +1,13 @@
+  <Project>
+      <PropertyGroup>
+        <Authors>Joona Luoma</Authors>
+        <Copyright>Copyright $([System.DateTime]::UtcNow.ToString(yyyy)).</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Description>Generates intersection types based on implemented interfaces.</Description>
+        <PackageTags>Attribute, Intersection, Type, Functional, Source, Generator, Generation</PackageTags>
+        <PackageOutputPath>$(SolutionDir)/Out/LocalNugetPackages</PackageOutputPath>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Version>0.5.0</Version>
+        <RepositoryUrl>https://github.com/iotalambda/IotaLambda.Intersection</RepositoryUrl>
+      </PropertyGroup>
+  </Project>

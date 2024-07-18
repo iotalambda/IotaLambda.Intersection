@@ -1,0 +1,1 @@
+﻿Generates intersection types based on implemented interfaces.
