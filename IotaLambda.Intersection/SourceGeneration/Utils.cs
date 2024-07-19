@@ -7,8 +7,10 @@ internal static class Utils
 {
     static readonly SymbolDisplayFormat FullyQualifiedNameSymbolDisplayFormat = new(
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
         miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
-    public static string GetFullyQualifiedName(this ITypeSymbol sbl) => sbl.ToDisplayString(FullyQualifiedNameSymbolDisplayFormat);
+
+    public static string GetFullyQualifiedName(this ISymbol sbl) => sbl.ToDisplayString(FullyQualifiedNameSymbolDisplayFormat);
 
     public static string GetSignature(this MethodDeclarationSyntax mDeclr)
     {

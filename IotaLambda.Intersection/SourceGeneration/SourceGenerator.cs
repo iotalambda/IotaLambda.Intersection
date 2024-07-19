@@ -55,7 +55,7 @@ public class SourceGenerator : IIncrementalGenerator
 
                     return new SInfo(
                         Fqn: sSbl.GetFullyQualifiedName(),
-                        Namespace: sSbl.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                        Namespace: sSbl.ContainingNamespace.GetFullyQualifiedName(),
                         IsGlobalNamespace: sSbl.ContainingNamespace.IsGlobalNamespace,
                         DeclrStr: sDeclr.ToString(),
                         ImplCasts: new(implCasts),
@@ -67,7 +67,7 @@ public class SourceGenerator : IIncrementalGenerator
                                 Usings: new(i.DeclaringSyntaxReferences.SelectMany(d => d.GetSyntax(ct).SyntaxTree.GetCompilationUnitRoot(ct).Usings.Select(u => u.NamespaceOrType.ToString())).Distinct().OrderBy(x => x).ToArray()),
                                 DeclaredAccessibility: i.DeclaredAccessibility,
                                 Fqn: i.GetFullyQualifiedName(),
-                                Namespace: i.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                                Namespace: i.ContainingNamespace.GetFullyQualifiedName(),
                                 IsGlobalNamespace: i.ContainingNamespace.IsGlobalNamespace,
                                 MembDeclrStrs: new(i.GetMembers().Where(m => !m.IsStatic).Select(m =>
                                 {
