@@ -19,7 +19,6 @@ public class SourceGenerator : IIncrementalGenerator
     );
 
     record SImplInterfInfo(
-        EquatableArray<string> Usings,
         Accessibility DeclaredAccessibility,
         string Fqn,
         string Namespace,
@@ -64,15 +63,22 @@ public class SourceGenerator : IIncrementalGenerator
                             ct.ThrowIfCancellationRequested();
 
                             return new SImplInterfInfo(
-                                Usings: new(i.DeclaringSyntaxReferences.SelectMany(d => d.GetSyntax(ct).SyntaxTree.GetCompilationUnitRoot(ct).Usings.Select(u => u.NamespaceOrType.ToString())).Distinct().OrderBy(x => x).ToArray()),
                                 DeclaredAccessibility: i.DeclaredAccessibility,
                                 Fqn: i.GetFullyQualifiedName(),
                                 Namespace: i.ContainingNamespace.GetFullyQualifiedName(),
                                 IsGlobalNamespace: i.ContainingNamespace.IsGlobalNamespace,
-                                MembDeclrStrs: new(i.GetMembers().Where(m => !m.IsStatic).Select(m =>
+                                MembDeclrStrs: new(i.GetMembers().Where(m => !m.IsStatic).Select(t =>
                                 {
                                     ct.ThrowIfCancellationRequested();
-                                    return m.DeclaringSyntaxReferences.First().GetSyntax(ct).ToString();
+                                    switch (t)
+                                    {
+                                        case IMethodSymbol mSbl:
+                                            var sb = new StringBuilder();
+                                            mSbl.AppendInterfaceMemberDeclarationString(sb);
+                                            return sb.ToString();
+                                        default:
+                                            return "";
+                                    }
                                 }).ToArray()));
                         }).ToArray()));
                 });
@@ -428,7 +434,6 @@ public class SourceGenerator : IIncrementalGenerator
                 {
                     if (!i.IsGlobalNamespace)
                         usings.Add(i.Namespace);
-                    usings.AddRange(i.Usings);
                 }
 
                 cuStx = cuStx

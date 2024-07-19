@@ -14,7 +14,7 @@ using SampleApp;
     me.PlayMyDesiredSport(myDesiredSport);
 
     // ERROR: The type 'SampleApp.Jogging' cannot be used as type parameter 'T' in the generic type or method 'MyDesiredSportShape.From<T>(T, object)'. There is no implicit reference conversion from 'SampleApp.Jogging' to 'SampleApp.IYouHitAThing'.
-    // myDesiredSport = MyDesiredSportShape.From(new Jogging());
+    //myDesiredSport = MyDesiredSportShape.From(new Jogging());
 
     // ERROR: The type 'SampleApp.Badminton' cannot be used as type parameter 'T' in the generic type or method 'MyDesiredSportShape.From<T>(T, object)'. There is no implicit reference conversion from 'SampleApp.Badminton' to 'SampleApp.IOutdoorSport'.
     //myDesiredSport = MyDesiredSportShape.From(new Badminton());
