@@ -21,3 +21,8 @@ interface IOutdoorSport
 {
     bool GetCanBePlayedDuringWinter();
 }
+
+interface IOutdoorSport<TShoe> : IOutdoorSport where TShoe : Shoe
+{
+    TShoe GetShoe();
+}

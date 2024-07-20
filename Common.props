@@ -7,7 +7,7 @@
         <PackageTags>Attribute, Intersection, Type, IntersectionType, Functional, Source, Generator, Generation</PackageTags>
         <PackageOutputPath>$(SolutionDir)/Out/LocalNugetPackages</PackageOutputPath>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Version>0.6.35</Version>
+        <Version>0.6.47</Version>
         <RepositoryUrl>https://github.com/iotalambda/IotaLambda.Intersection</RepositoryUrl>
       </PropertyGroup>
   </Project>

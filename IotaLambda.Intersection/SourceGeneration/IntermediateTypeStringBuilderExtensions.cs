@@ -23,7 +23,7 @@ internal static class IntermediateTypeStringBuilderExtensions
 
             sb.Append("{").AppendLine();
             {
-                sb.Append("private object s;").AppendLine();
+                sb.Append("private readonly object s;").AppendLine();
 
                 sb.AppendLine();
 
@@ -35,7 +35,7 @@ internal static class IntermediateTypeStringBuilderExtensions
                 sb.AppendLine();
 
                 sb.Append("[Obsolete(\"Do not use the parameterless constructor.\", error: true)]").AppendLine();
-                sb.Append("private ").Append(model.Type.Name).Append("()").AppendLine();
+                sb.Append("public ").Append(model.Type.Name).Append("()").AppendLine();
                 sb.Append("{").AppendLine();
                 sb.Append("throw new System.InvalidOperationException(\"Do not use the parameterless constructor.\");").AppendLine();
                 sb.Append("}").AppendLine();
@@ -69,8 +69,7 @@ internal static class IntermediateTypeStringBuilderExtensions
                         var s = m.GetSignature();
                         if (!addedSignatures.Add(s))
                             continue;
-                        sb.Append("public ");
-                        sb.AppendDeclarationSignature(m);
+                        sb.Append("public ").AppendDeclarationSignature(m).AppendLine();
                         sb.Append("{").AppendLine();
                         if (!m.ReturnsVoid)
                             sb.Append("return ");
@@ -93,12 +92,12 @@ internal static class IntermediateTypeStringBuilderExtensions
 
                 foreach (var tc in model.TypeComponents)
                 {
-                    sb.Append("public ").AppendTypeFqn(tc.Type, simpleNameForOutermostType: false).Append("<T>(")
+                    sb.Append("public ").AppendTypeFqn(tc.Type, simpleNameForOutermostType: false).Append(" AsComponent").Append("<T>(")
                         .AppendTypeFqn(tc.Type, simpleNameForOutermostType: false).Append(" _ = default) where T : ").AppendTypeFqn(tc.Type, simpleNameForOutermostType: false)
                         .AppendLine();
                     sb.Append("{").AppendLine();
-                    sb.Append("return this.s as ").AppendTypeFqn(tc.Type, simpleNameForOutermostType: false).Append(");").AppendLine();
-                    sb.Append("{").AppendLine();
+                    sb.Append("return this.s as ").AppendTypeFqn(tc.Type, simpleNameForOutermostType: false).Append(";").AppendLine();
+                    sb.Append("}").AppendLine();
 
                     sb.AppendLine();
                 }
@@ -109,7 +108,7 @@ internal static class IntermediateTypeStringBuilderExtensions
                     {
                         if (ic.From)
                         {
-                            sb.Append("public static operator ").AppendTypeFqn(model.Type, simpleNameForOutermostType: true)
+                            sb.Append("public static implicit operator ").AppendTypeFqn(model.Type, simpleNameForOutermostType: true)
                                 .Append("(").AppendTypeFqn(ic.Type, simpleNameForOutermostType: false).Append(" source)").AppendLine();
                             sb.Append("{").AppendLine();
                             sb.Append("return From(source);").AppendLine();
@@ -120,7 +119,7 @@ internal static class IntermediateTypeStringBuilderExtensions
 
                         if (ic.To)
                         {
-                            sb.Append("public static operator ").AppendTypeFqn(ic.Type, simpleNameForOutermostType: false)
+                            sb.Append("public static implicit operator ").AppendTypeFqn(ic.Type, simpleNameForOutermostType: false)
                                 .Append("(").AppendTypeFqn(model.Type, simpleNameForOutermostType: true).Append(" source)").AppendLine();
                             sb.Append("{").AppendLine();
                             sb.Append("return ").AppendTypeFqn(ic.Type, simpleNameForOutermostType: false).Append(".From(source);").AppendLine();
@@ -131,7 +130,7 @@ internal static class IntermediateTypeStringBuilderExtensions
                     }
                 }
 
-                sb.Append("object IotaLambda.Intersection.Internal.IIntersectionType S()").AppendLine();
+                sb.Append("object IotaLambda.Intersection.Internal.IIntersectionType.S()").AppendLine();
                 sb.Append("{").AppendLine();
                 sb.Append("return this.s;").AppendLine();
                 sb.Append("}").AppendLine();
@@ -202,6 +201,8 @@ internal static class IntermediateTypeStringBuilderExtensions
         else
             sb.AppendTypeFqn(methodMember.ReturnType, simpleNameForOutermostType: false).Append(" ");
 
+        sb.Append(methodMember.Name);
+
         if (methodMember.TypeParameters.Count > 0)
         {
             sb.Append("<");
@@ -215,8 +216,6 @@ internal static class IntermediateTypeStringBuilderExtensions
             }
             sb.Append(">");
         }
-
-        sb.Append(methodMember.Name);
 
         sb.Append("(");
         if (methodMember.Parameters.Count > 0)

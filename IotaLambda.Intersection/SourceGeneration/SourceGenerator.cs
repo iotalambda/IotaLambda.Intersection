@@ -9,23 +9,6 @@ namespace IotaLambda.Intersection.SourceGeneration;
 [Generator]
 public class SourceGenerator : IIncrementalGenerator
 {
-    record SInfo(
-        string Fqn,
-        string Namespace,
-        bool IsGlobalNamespace,
-        string DeclrStr,
-        EquatableArray<(string Fqn, bool To, bool From)> ImplCasts,
-        EquatableArray<SImplInterfInfo> Interfaces
-    );
-
-    record SImplInterfInfo(
-        Accessibility DeclaredAccessibility,
-        string Fqn,
-        string Namespace,
-        bool IsGlobalNamespace,
-        EquatableArray<string> MembDeclrStrs
-    );
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var intermediateTypeModels = context.SyntaxProvider
@@ -47,7 +30,7 @@ public class SourceGenerator : IIncrementalGenerator
                         DeclaredAccessibility: sSbl.DeclaredAccessibility,
                         IsReadonly: sSbl.IsReadOnly,
                         Type: sSbl.GetTypeModel(),
-                        TypeComponents: new EquatableArray<TypeComponentModel>(sSbl.Interfaces.Select(i =>
+                        TypeComponents: new EquatableArray<TypeComponentModel>(sSbl.AllInterfaces.Select(i =>
                         {
                             ct.ThrowIfCancellationRequested();
 
@@ -87,9 +70,11 @@ public class SourceGenerator : IIncrementalGenerator
                                                 Name: p.Name,
                                                 HasExplicitDefaultValue: p.HasExplicitDefaultValue,
                                                 ExplicitDefaultValueStr:
-                                                    p.ExplicitDefaultValue == default ? "default"
-                                                    : p.ExplicitDefaultValue == null ? "null"
-                                                    : p.ExplicitDefaultValue.ToString()
+                                                    p.HasExplicitDefaultValue
+                                                    ? p.ExplicitDefaultValue == default ? "default"
+                                                        : p.ExplicitDefaultValue == null ? "null"
+                                                        : p.ExplicitDefaultValue.ToString()
+                                                    : null
                                             );
                                         }).ToArray())
                                     );
@@ -101,8 +86,8 @@ public class SourceGenerator : IIncrementalGenerator
                             .Select(t => new ImplicitCastModel
                             (
                                 Type: t.GetTypeModel(),
-                                To: t.Interfaces.All(sSbl.Interfaces.Contains),
-                                From: sSbl.Interfaces.All(t.Interfaces.Contains)
+                                To: t.AllInterfaces.All(sSbl.AllInterfaces.Contains),
+                                From: sSbl.AllInterfaces.All(t.AllInterfaces.Contains)
                             ))
                             .ToArray())
                     );
@@ -121,7 +106,10 @@ public class SourceGenerator : IIncrementalGenerator
                 var cuStx = SyntaxFactory.ParseCompilationUnit(str).NormalizeWhitespace();
                 str = null;
 
-                spCtx.AddSource($"{intermediateTypeModel.Type.Fqn}.g.cs", SourceText.From(cuStx.ToFullString(), Encoding.UTF8));
+                sb = new StringBuilder();
+                sb.AppendTypeFqn(intermediateTypeModel.Type, false).Append(".g.cs");
+                var fileName = sb.ToString().Replace(" ", "").Replace("<", "_").Replace(">", "__").Replace(",", "___");
+                spCtx.AddSource(fileName, SourceText.From(cuStx.ToFullString(), Encoding.UTF8));
             });
     }
 }
