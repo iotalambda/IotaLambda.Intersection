@@ -73,6 +73,7 @@ public class SourceGenerator : IIncrementalGenerator
                                                     p.HasExplicitDefaultValue
                                                     ? p.ExplicitDefaultValue == default ? "default"
                                                         : p.ExplicitDefaultValue == null ? "null"
+                                                        : p.ExplicitDefaultValue is string str ? $"\"{str}\""
                                                         : p.ExplicitDefaultValue.ToString()
                                                     : null
                                             );
