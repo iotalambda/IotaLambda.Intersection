@@ -53,17 +53,33 @@ and use them as types as usual without having to colour your codebase with gener
 ```csharp
 var ash = new Ash();
 var charizard = new Charizard();
-ash.FlyWithPokemon(SFlyingPokemon.From(charizard), "Lavender Town");
+ash.Fly_Better(SFlyingPokemon.From(charizard), "Lavender Town");
 
 public class Ash
 {
-    public bool FlyWithAPokemon(SFlyingPokemon pokemon, string city)
+    public bool Fly_Better(SFlyingPokemon pokemon, string city) // No need to define generic constraints, as the intersection type already covers that!
     {
         if (pokemon.GetHp() <= 0)
             return false;
 
         pokemon.FlyTo(city);
+        DescribeTravel("flew", pokemon.AsComponent<IPokemon>(), city); // Use `AsComponent<>` to get one of the components without boxing. `AsComponent<>`s are statically typed overloads for each component!
         return true;
+    }
+
+    public bool Fly_Normal<TPokemon>(TPokemon pokemon, string city) where TPokemon : IPokemon, IFlyingPokemon
+    {
+        if (pokemon.GetHp() <= 0)
+            return false;
+
+        pokemon.FlyTo(city);
+        DescribeTravel("flew", pokemon, city);
+        return true;
+    }
+
+    void DescribeTravel(string verb, IPokemon pokemon, string city)
+    {
+        System.Console.WriteLine($"Ash {verb} to {city} with {pokemon.GetNickName()}.")
     }
 }
 ```
