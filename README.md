@@ -53,7 +53,7 @@ and use them as types as usual without having to colour your codebase with gener
 ```csharp
 var ash = new Ash();
 var charizard = new Charizard();
-ash.FlyWithPokemon(charizard, "Lavender Town");
+ash.FlyWithPokemon(SFlyingPokemon.From(charizard), "Lavender Town");
 
 public class Ash
 {
