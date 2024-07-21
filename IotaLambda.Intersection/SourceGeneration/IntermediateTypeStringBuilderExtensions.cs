@@ -34,7 +34,7 @@ internal static class IntermediateTypeStringBuilderExtensions
 
                 sb.AppendLine();
 
-                sb.Append("[Obsolete(\"Do not use the parameterless constructor.\", error: true)]").AppendLine();
+                sb.Append("[System.Obsolete(\"Do not use the parameterless constructor.\", error: true)]").AppendLine();
                 sb.Append("public ").Append(model.Type.Name).Append("()").AppendLine();
                 sb.Append("{").AppendLine();
                 sb.Append("throw new System.InvalidOperationException(\"Do not use the parameterless constructor.\");").AppendLine();
